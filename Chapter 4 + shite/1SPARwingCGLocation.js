@@ -2,11 +2,11 @@
 const summedSkinArea = 0.00007104274004042736; // m^2
 const summedSparArea = 0.000003208365264686912; // m^2
 
-const summedSkinNumeratorXValuesMeter = 8794.066252323062/1000; // m
-const summedSparNumeratorXValuesMeter = 2.3033567589934387e-7; // m
+const summedSkinNumeratorXValuesMeter = 8794.066252323062/1000;
+const summedSparNumeratorXValuesMeter = 2.3033567589934387e-7;
 
-const summedSkinNumeratorYValuesMeter = 1086.8107419049531/1000; // m
-const summedSparNumeratorYValuesMeter = 5.4842732641122564e-8; // m
+const summedSkinNumeratorYValuesMeter = 1086.8107419049531/1000;
+const summedSparNumeratorYValuesMeter = 5.4842732641122564e-8;
 
 // Calculate total summed area, CGX and CGY.
 var summedTotalArea = summedSkinArea+summedSparArea;

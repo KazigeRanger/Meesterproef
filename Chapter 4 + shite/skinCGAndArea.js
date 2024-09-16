@@ -7,12 +7,11 @@ const SD7037_y = [10.0, 10.105, 10.45, 11.09, 12.0275, 13.2375, 14.6625, 16.225,
 const skinThickness = 0.5; // mm
 
 var segmentAreas = [];
+var skinPerimeter = [];
 
 function calculateAreas(xValues, yValues, skinThickness) {
     var xDeltas = [];
     var yDeltas = [];
-
-    var generalDeltas = [];
 
     // Calculate X and Y deltas.
     for (let i = 0; i < xValues.length-1; i++) {
@@ -28,20 +27,23 @@ function calculateAreas(xValues, yValues, skinThickness) {
     // Calculate general deltas using the Pythagorean theorem.
     for (let i = 0; i < xDeltas.length || i < yDeltas.length; i++) {
         var generalDelta = Math.sqrt(Math.pow(xDeltas[i], 2) + Math.pow(yDeltas[i], 2));
-        generalDeltas.push(generalDelta);
+        skinPerimeter.push(generalDelta);
     }
 
     // Calculate the areas of skin segments.
-    for (let i = 0; i < generalDeltas.length; i++) {
-        var segmentArea = generalDeltas[i] * skinThickness;
+    for (let i = 0; i < skinPerimeter.length; i++) {
+        var segmentArea = skinPerimeter[i] * skinThickness;
         segmentAreas.push(segmentArea);
     }
 
     // console.log(segmentAreas);
     var summedSkinAreaMillimeter = segmentAreas.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
     var summedSkinAreaMeter = summedSkinAreaMillimeter/1000000;
-    console.log(summedSkinAreaMeter);
-    return segmentAreas;
+    var summedSkinPerimeterMillimeter = skinPerimeter.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+    var summedSkinPerimeterMeter = summedSkinPerimeterMillimeter/1000;
+    console.log(`Summed skin area: ${summedSkinAreaMeter}`);
+    console.log(`Summed skin perimeter: ${summedSkinPerimeterMeter}`);
+    return segmentAreas, skinPerimeter;
 }
 
 calculateAreas(SD7037_x, SD7037_y, skinThickness);

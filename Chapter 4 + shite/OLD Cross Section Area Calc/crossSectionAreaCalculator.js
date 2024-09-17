@@ -18,55 +18,74 @@ for (let i = 0; i < SD7037_x_mm.length; i++) {
 // Define the location of the front and the rear spar
 const chordLength = 0.25; // m 
 const xFrontSpar = 0.304*chordLength; // m
-const xRearSpar = 0.55*chordLength; // m
+const xRearSpar = 0.6*chordLength; // m
 
 console.log(`The position of the front spar is at x = ${xFrontSpar}m`);
 console.log(`The position of the rear spar is at x = ${xRearSpar}m`);
 
-function calculateMinimumEnclosedArea(xVertices, yVertices, xFrontSpar, xRearSpar) {
-    let splicedXVertices = [];
-    let splicedYVertices = [];
+function calculateCrossSectionAreas(xVertices, yVertices, xFrontSpar, xRearSpar) {
+    let splicedFrontXVertices = [];
+    let splicedFrontYVertices = [];
+    let splicedEnclosedXVertices = [];
+    let splicedEnclosedYVertices = [];
+    let splicedRearXVertices = [];
+    let splicedRearYVertices = [];
 
     /* 
     Splice the xVertices array so that it only includes the vertices that lie 
     beyond a specified vertical line. In this case that specified vertical line is
     the front spar. We also splice the yVertices array in the same way to get the
-    y-values of the points of which we already spliced the x-values.
+    y-values of the points of which we already splicedEnclosed the x-values.
     */
     for (let i = 0; i < xVertices.length; i++) {
         if (xFrontSpar <= xVertices[i] && xVertices[i-1] > xFrontSpar && xVertices[i] <= xRearSpar && xVertices[i-1] < xRearSpar) {
-            splicedXVertices.push(xVertices[i]);
-            splicedYVertices.push(yVertices[i]);
+            splicedEnclosedXVertices.push(xVertices[i]);
+            splicedEnclosedYVertices.push(yVertices[i]);
         } else if (xVertices[i] < xRearSpar && xVertices[i-1] >= xRearSpar) {
             let intersectLineSlope = -(Math.max(yVertices[i], yVertices[i-1])-Math.min(yVertices[i], yVertices[i-1]))/(Math.max(xVertices[i], xVertices[i-1])-Math.min(xVertices[i], xVertices[i-1]));
             let intersectLineDisplacement = yVertices[i]-intersectLineSlope*xVertices[i];
 
             let yRearSpar = intersectLineSlope*xRearSpar+intersectLineDisplacement;
-            splicedYVertices.push(yRearSpar);
+            splicedEnclosedYVertices.push(yRearSpar);
+            
+            splicedRearYVertices.push(yRearSpar);
 
-            splicedXVertices.push(xVertices[i]);
-            splicedYVertices.push(yVertices[i]);
+            splicedEnclosedXVertices.push(xVertices[i]);
+            splicedEnclosedYVertices.push(yVertices[i]);
         } else if (xVertices[i] < xFrontSpar && xVertices[i-1] >= xFrontSpar) {
             let intersectLineSlope = (Math.max(yVertices[i], yVertices[i-1])-Math.min(yVertices[i], yVertices[i-1]))/(Math.max(xVertices[i], xVertices[i-1])-Math.min(xVertices[i], xVertices[i-1]));
             let intersectLineDisplacement = yVertices[i]-intersectLineSlope*xVertices[i];
 
             let yFrontSpar = intersectLineSlope*xFrontSpar+intersectLineDisplacement;
-            splicedYVertices.push(yFrontSpar);
+            splicedEnclosedYVertices.push(yFrontSpar);
+            splicedFrontYVertices.push(yFrontSpar);
+            splicedFrontYVertices.push(yVertices[i]);
+            splicedFrontXVertices.push(xVertices[i]);
         } else if (xVertices[i] > xFrontSpar && xVertices[i-1] <= xFrontSpar) {
-            splicedXVertices.push(xVertices[i]);
-            splicedYVertices.push(yVertices[i]);
+            splicedEnclosedXVertices.push(xVertices[i]);
+            splicedEnclosedYVertices.push(yVertices[i]);
 
             let intersectLineSlope = (Math.max(yVertices[i], yVertices[i-1])-Math.min(yVertices[i], yVertices[i-1]))/(Math.max(xVertices[i], xVertices[i-1])-Math.min(xVertices[i], xVertices[i-1]));
             let intersectLineDisplacement = yVertices[i]-intersectLineSlope*xVertices[i];
 
             let yFrontSpar = intersectLineSlope*xFrontSpar+intersectLineDisplacement;
-            splicedYVertices.splice(splicedYVertices.indexOf(Math.min(...splicedYVertices)), 0, yFrontSpar);
+            splicedEnclosedYVertices.splice(splicedEnclosedYVertices.indexOf(Math.min(...splicedEnclosedYVertices)), 0, yFrontSpar);
+            splicedFrontYVertices.push(yFrontSpar);
         } else if (xVertices[i] > xRearSpar && xVertices[i-1] <= xRearSpar) {
             let intersectLineSlope = (Math.max(yVertices[i], yVertices[i-1])-Math.min(yVertices[i], yVertices[i-1]))/(Math.max(xVertices[i], xVertices[i-1])-Math.min(xVertices[i], xVertices[i-1]));
             let intersectLineDisplacement = yVertices[i]-intersectLineSlope*xVertices[i];
 
             let yRearSpar = intersectLineSlope*xRearSpar+intersectLineDisplacement;
-            splicedYVertices.push(yRearSpar);
+            splicedEnclosedYVertices.push(yRearSpar);
+            splicedRearYVertices.push(yRearSpar);
+        } else {
+            if (xVertices[i] < xFrontSpar) {
+                splicedFrontXVertices.push(xVertices[i]);
+                splicedFrontYVertices.push(yVertices[i]);
+            } else if (xVertices[i] > xRearSpar) {
+                splicedRearXVertices.push(xVertices[i]);
+                splicedRearYVertices.push(yVertices[i]);
+            }
         }
     }
 
@@ -75,12 +94,37 @@ function calculateMinimumEnclosedArea(xVertices, yVertices, xFrontSpar, xRearSpa
     of the front spar has two according y-coordinates, so there must also be two
     x-coordinates to match with the two y-coordinates.
     */
-    splicedXVertices.splice(splicedXVertices.indexOf(Math.min(...splicedXVertices))+1, 0, xFrontSpar, xFrontSpar);
-    splicedXVertices.splice(0, 0, xRearSpar);
-    splicedXVertices.splice(splicedXVertices.length, 0, xRearSpar);
+    splicedEnclosedXVertices.splice(splicedEnclosedXVertices.indexOf(Math.min(...splicedEnclosedXVertices))+1, 0, xFrontSpar, xFrontSpar);
+    splicedEnclosedXVertices.splice(0, 0, xRearSpar);
+    splicedEnclosedXVertices.splice(splicedEnclosedXVertices.length, 0, xRearSpar);
 
-    console.log(splicedXVertices);
-    console.log(splicedYVertices);
+    splicedFrontXVertices.splice(0, 0, xFrontSpar);
+    splicedFrontXVertices.splice(splicedFrontXVertices.length, 0, xFrontSpar);
+
+    /*
+    WATCH OUT!
+    For some rear spar locations the splice command under here will not work as intended, 
+    because the location of the minimum x-coordinate can be on the top and on the bottom
+    of the airfoil shape and depending of that the location of the splicing will differ.
+    */
+    splicedRearXVertices.splice(splicedRearXVertices.indexOf(Math.min(...splicedRearXVertices))+1, 0, xRearSpar, xRearSpar);
+
+    console.log(`\nFront x vertices: ${splicedFrontXVertices.join(", ")}`);
+    console.log(`Front y vertices: ${splicedFrontYVertices.join(", ")}`);
+    console.log("----------------------------------------------------------------------");
+    console.log(`Enclosed x vertices: ${splicedEnclosedXVertices.join(", ")}`);
+    console.log(`Enclosed y vertices: ${splicedEnclosedYVertices.join(", ")}`);
+    console.log("----------------------------------------------------------------------");
+    console.log(`Rear x vertices: ${splicedRearXVertices.join(", ")}`);
+    console.log(`Rear y vertices: ${splicedRearYVertices.join(", ")}`);
+
+    console.log(splicedFrontXVertices.length + " " + splicedFrontYVertices.length);
+    console.log(splicedEnclosedXVertices.length + " " + splicedEnclosedYVertices.length);
+    console.log(splicedRearXVertices.length + " " + splicedRearYVertices.length);
+
+    return [splicedFrontXVertices, splicedFrontYVertices, splicedEnclosedXVertices, splicedEnclosedYVertices, splicedRearXVertices, splicedRearYVertices];
 }
 
-calculateMinimumEnclosedArea(SD7037_x_m, SD7037_y_m, xFrontSpar, xRearSpar);
+calculateCrossSectionAreas(SD7037_x_m, SD7037_y_m, xFrontSpar, xRearSpar);
+
+module.exports = {calculateCrossSectionAreas};

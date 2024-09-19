@@ -52,6 +52,9 @@ function divideAreas(xCoords, yCoords, frontSparX, rearSparX) {
         let rearSparYBottom = intersectSlopeBottom*rearSparX+intersectDisplacementBottom;
 
         rearAreaYCoords.splice(minRearXValueIndex+1, 0, rearSparYTop, rearSparYBottom);
+
+        enclosedAreaYCoords.splice(0, 0, rearSparYTop);
+        enclosedAreaYCoords.push(rearSparYBottom);
     } else {
         // This code will run if the minimum x value is at the bottom of the airfoil
         rearAreaXCoords.splice(minRearXValueIndex, 0, rearSparX, rearSparX);
@@ -72,10 +75,59 @@ function divideAreas(xCoords, yCoords, frontSparX, rearSparX) {
 
         rearAreaYCoords.splice(minRearXValueIndex, 0, rearSparYTop, rearSparYBottom);
 
-        console.log(rearAreaYCoords);
+        enclosedAreaYCoords.splice(0, 0, rearSparYTop);
+        enclosedAreaYCoords.push(rearSparYBottom);
     }
 
-    console.log(rearAreaXCoords);
+    // Calculate the slope and displacement of the line that intersects with the points that lie
+    // on either side of the top of the front spar
+    let frontIntersectSlopeTop = (yCoords[yCoords.indexOf(frontAreaYCoords[0])-1]-frontAreaYCoords[0])/(xCoords[xCoords.indexOf(frontAreaXCoords[0])-1]-frontAreaXCoords[0]);
+    let frontIntersectDisplacementTop = frontAreaYCoords[0]-frontIntersectSlopeTop*frontAreaXCoords[0];
+
+    let frontSparYTop = frontIntersectSlopeTop*frontSparX+frontIntersectDisplacementTop;
+
+    frontAreaXCoords.splice(0, 0, frontSparX);
+    frontAreaYCoords.splice(0, 0, frontSparYTop);
+
+    // Calculate the slope and displacement of the line that intersects with the points that lie
+    // on either side of the bottom of the front spar
+    let frontIntersectSlopeBottom = (yCoords[yCoords.indexOf(frontAreaYCoords[frontAreaYCoords.length-1])+1]-frontAreaYCoords[frontAreaXCoords.length-1])/(xCoords[xCoords.indexOf(frontAreaXCoords[frontAreaXCoords.length-1])+1]-frontAreaXCoords[frontAreaXCoords.length-1]);
+    let frontIntersectDisplacementBottom = frontAreaYCoords[frontAreaYCoords.length-1]-frontIntersectSlopeBottom*frontAreaXCoords[frontAreaXCoords.length-1];
+
+    let frontSparYBottom = frontIntersectSlopeBottom*frontSparX+frontIntersectDisplacementBottom;
+
+    frontAreaXCoords.push(frontSparX);
+    frontAreaYCoords.push(frontSparYBottom);
+
+    // Splice enclosed area spar coordinates
+    enclosedAreaXCoords.splice(0, 0, rearSparX);
+    enclosedAreaXCoords.push(rearSparX);
+
+    if (xCoords.indexOf(Math.min(...enclosedAreaXCoords)) === xCoords.indexOf(enclosedAreaXCoords[enclosedAreaXCoords.indexOf(Math.min(...enclosedAreaXCoords))-1])+1) {
+        // This code will run if the minimum x value is at the top of the airfoil
+        enclosedAreaXCoords.splice(enclosedAreaXCoords.indexOf(Math.min(...enclosedAreaXCoords))+1, 0, frontSparX, frontSparX);
+        enclosedAreaYCoords.splice(enclosedAreaXCoords.indexOf(Math.min(...enclosedAreaXCoords)), 0, frontSparYTop, frontSparYBottom);
+    } else {
+        enclosedAreaXCoords.splice(enclosedAreaXCoords.indexOf(Math.min(...enclosedAreaXCoords)), 0, frontSparX, frontSparX);
+        enclosedAreaYCoords.splice(enclosedAreaXCoords.indexOf(Math.min(...enclosedAreaXCoords)), 0, frontSparYTop, frontSparYBottom);
+    }
+
+    // console.log(frontAreaXCoords.length + " " + frontAreaYCoords.length);
+    // console.log(enclosedAreaXCoords.length + " " + enclosedAreaYCoords.length);
+    // console.log(rearAreaXCoords.length + " " + rearAreaYCoords.length);
+
+    // console.log(frontAreaXCoords);
+    // console.log(frontAreaYCoords);
+
+    // console.log(enclosedAreaXCoords);
+    // console.log(enclosedAreaYCoords);
+
+    // console.log(rearAreaYCoords);
+    // console.log(rearAreaXCoords);
+
+    return [frontAreaXCoords, frontAreaYCoords, enclosedAreaXCoords, enclosedAreaYCoords, rearAreaXCoords, rearAreaYCoords];
 }
 
-divideAreas(SD7037_x, SD7037_y, frontSparX, rearSparX);
+// divideAreas(SD7037_x, SD7037_y, frontSparX, rearSparX);
+
+module.exports = {divideAreas};

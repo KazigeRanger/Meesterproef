@@ -6,7 +6,7 @@ function executeShoelaceFormula(xVertices, yVertices) {
         calculatedTerms.push(calculatedTerm);
     }
 
-    var loopTerm = xVertices[0]*yVertices[1]-yVertices[0]*xVertices[1];
+    var loopTerm = xVertices[xVertices.length-1]*yVertices[0]-yVertices[yVertices.length-1]*xVertices[0];
     calculatedTerms.push(loopTerm);
 
     var area = 0.5 * calculatedTerms.reduce((accumulator, currentValue) => accumulator+currentValue);

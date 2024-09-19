@@ -10,7 +10,7 @@ const SD7037_y = [0.01, 0.010105, 0.01045, 0.01109, 0.0120275, 0.0132375, 0.0146
 const chordLength = 0.25; // m
 
 const frontSparX = 0.304*chordLength; // m
-const rearSparX = 0.5234*chordLength; // m
+const rearSparX = 0.55*chordLength; // m
 
 // Define the vertices of the front, enclosed and rear area
 const outputs = divideAreas(SD7037_x, SD7037_y, frontSparX, rearSparX);
@@ -22,26 +22,26 @@ const rearAreaXCoords = outputs[4];
 const rearAreaYCoords = outputs[5];
 
 // Place your code here
-const error = 0.00000001;
-for (let rearSparX = 0.5*chordLength; rearSparX < chordLength; rearSparX += 0.0000001) {
-    console.log(rearSparX);
-    let vertices = divideAreas(SD7037_x, SD7037_y, frontSparX, rearSparX);
+// const error = 0.00000001;
+// for (let rearSparX = 0.5*chordLength; rearSparX < chordLength; rearSparX += 0.0000001) {
+//     console.log(rearSparX);
+//     let vertices = divideAreas(SD7037_x, SD7037_y, frontSparX, rearSparX);
 
-    let enclosedX = vertices[2];
-    let enclosedY = vertices[3];
-    let rearX = vertices[4];
-    let rearY = vertices[5];
+//     let enclosedX = vertices[2];
+//     let enclosedY = vertices[3];
+//     let rearX = vertices[4];
+//     let rearY = vertices[5];
 
-    let enclosedArea = executeShoelaceFormula(enclosedX, enclosedY);
-    let rearArea = executeShoelaceFormula(rearX, rearY);
+//     let enclosedArea = executeShoelaceFormula(enclosedX, enclosedY);
+//     let rearArea = executeShoelaceFormula(rearX, rearY);
 
-    if (enclosedArea <= rearArea+error && enclosedArea >= rearArea-error) {
-        console.log(`The position of the rear spar when the enclosed and rear areas are equal is: ${/*parseFloat(rearSparX.toFixed(15))*/rearSparX}`);
-        break;
-    } else {
-        continue;
-    }
-}
+//     if (enclosedArea <= rearArea+error && enclosedArea >= rearArea-error) {
+//         console.log(`The position of the rear spar when the enclosed and rear areas are equal is: ${/*parseFloat(rearSparX.toFixed(15))*/rearSparX}`);
+//         break;
+//     } else {
+//         continue;
+//     }
+// }
 
 const airfoilArea = executeShoelaceFormula(SD7037_x, SD7037_y);
 console.log(`The airfoil area is: ${airfoilArea}`);
@@ -54,6 +54,9 @@ console.log(`The enclosed area is: ${enclosedArea}`);
 
 const rearArea = executeShoelaceFormula(rearAreaXCoords, rearAreaYCoords);
 console.log(`The rear area is: ${rearArea}`);
+
+const minArea = Math.min(frontArea, enclosedArea, rearArea);
+console.log(`The smallest area is: ${minArea}`);
 
 // var totalAreaBySummation = frontArea+enclosedArea+rearArea;
 // console.log(`The total area by summation is: ${totalAreaBySummation}`);

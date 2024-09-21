@@ -1,6 +1,10 @@
+const fs = require('fs');
+
 // Import the "executeShoelaceFormula" and "divideAreas" functions
 const { executeShoelaceFormula } = require("./shoelacing.js");
 const { divideAreas } = require("./areaDivider.js");
+const { generateSparLocations } = require("./generateSparLocations.js");
+const { json } = require('stream/consumers');
 
 // Define the vertices that describe airfoil shape SD7037
 const SD7037_x = [0.25, 0.24918, 0.2467675, 0.242865, 0.2376025, 0.231125, 0.2235625, 0.2150375, 0.2056525, 0.1955025, 0.1846625, 0.173235, 0.1613475, 0.1491375, 0.1367325, 0.124265, 0.1118625, 0.099655, 0.0877525, 0.07627, 0.0653125, 0.0549725, 0.0453425, 0.0365025, 0.028525, 0.021465, 0.015365, 0.010255, 0.006155, 0.00308, 0.001045, 0.0000525, 0.0003175, 0.002015, 0.005095, 0.0095, 0.015185, 0.02211, 0.03021, 0.0394125, 0.049625, 0.06074, 0.0726375, 0.0851775, 0.09822, 0.1116075, 0.125185, 0.1387975, 0.152285, 0.1654925, 0.1782625, 0.190445, 0.20188, 0.21241, 0.22189, 0.2301775, 0.2371475, 0.2426925, 0.246725, 0.2491775, 0.25];
@@ -9,8 +13,63 @@ const SD7037_y = [0.01, 0.010105, 0.01045, 0.01109, 0.0120275, 0.0132375, 0.0146
 // Define the spar locations
 const chordLength = 0.25; // m
 
-const frontSparX = 0.304*chordLength; // m
-const rearSparX = 0.55*chordLength; // m
+const frontSparX = 0.01; // m
+const rearSparX = 0.24; // m
+
+// Define the spar locations as linear spaces for the 3d plot
+// let frontSparLocations = [];
+// let rearSparLocations = [];
+const n = 25;
+
+const frontRange = [0.204*chordLength, 0.304*chordLength];
+const rearRange = [0, chordLength];
+const frontSparLocations = generateSparLocations([], n, rearRange);
+const rearSparLocations = generateSparLocations([], n, rearRange);
+
+console.log(frontSparLocations);
+console.log(rearSparLocations);
+
+// Calculate the front, enclosed and rear areas of the airfoil cross section for all spar locations
+let outputArray = [];
+for (let i = 0; i < frontSparLocations.length; i++) {
+    for (let j = 0; j < rearSparLocations.length; j++) {
+        if (frontSparLocations[i] < rearSparLocations[j]) {  
+            let outputVertices = divideAreas(SD7037_x, SD7037_y, frontSparLocations[i], rearSparLocations[j]);
+            let frontAreaXCoords = outputVertices[0];
+            let frontAreaYCoords = outputVertices[1];
+            let enclosedAreaXCoords = outputVertices[2];
+            let enclosedAreaYCoords = outputVertices[3];
+            let rearAreaXCoords = outputVertices[4];
+            let rearAreaYCoords = outputVertices[5];
+
+            let frontArea = executeShoelaceFormula(frontAreaXCoords, frontAreaYCoords);
+            let enclosedArea = executeShoelaceFormula(enclosedAreaXCoords, enclosedAreaYCoords);
+            let rearArea = executeShoelaceFormula(rearAreaXCoords, rearAreaYCoords);
+
+            
+            let minArea = Math.abs(Math.min(enclosedArea, rearArea));
+            outputArray.push(minArea);
+            if (minArea > 0.001500) {
+                console.log(`Enclosed area: ${enclosedArea}. Rear Area: ${rearArea}`);
+            }
+            // console.log(minArea)
+            // if (minArea !== frontArea) {
+            //     outputArray.push(minArea);
+            // } else if (minArea === frontArea) {
+            //     outputArray.push(Math.abs(Math.min(enclosedArea, rearArea)));
+            // }
+        } else {
+            outputArray.push(0);
+        }
+    }
+}
+
+let minAreas = [];
+for (let i = 0; i < outputArray.length; i++) {
+    minAreas.push(outputArray[i]*1000000);
+}
+
+// console.log(minAreas);
 
 // Define the vertices of the front, enclosed and rear area
 const outputs = divideAreas(SD7037_x, SD7037_y, frontSparX, rearSparX);
@@ -58,11 +117,14 @@ console.log(`The rear area is: ${rearArea}`);
 const minArea = Math.min(frontArea, enclosedArea, rearArea);
 console.log(`The smallest area is: ${minArea}`);
 
-// var totalAreaBySummation = frontArea+enclosedArea+rearArea;
-// console.log(`The total area by summation is: ${totalAreaBySummation}`);
+fs.writeFileSync('output.json', JSON.stringify([frontSparLocations, rearSparLocations, minAreas]), 'utf8');
+// console.log(minAreas);
 
-// if (airfoilArea.toFixed(10) === totalAreaBySummation.toFixed(10)) {
-//     console.log("IT FINALLY FUCKING WORKS");
-// } else {
-//     console.log("BROKEN");
-// }
+var totalAreaBySummation = frontArea+enclosedArea+rearArea;
+console.log(`The total area by summation is: ${totalAreaBySummation}`);
+
+if (airfoilArea.toFixed(10) === totalAreaBySummation.toFixed(10)) {
+    console.log("IT WORKS");
+} else {
+    console.log("BROKEN");
+}

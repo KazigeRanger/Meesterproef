@@ -1,6 +1,10 @@
+const fs = require('fs');
+
 // Import the "executeShoelaceFormula" and "divideAreas" functions
 const { executeShoelaceFormula } = require("./shoelacing.js");
 const { divideAreas } = require("./areaDivider.js");
+const { generateSparLocations } = require("./generateSparLocations.js");
+const { json } = require('stream/consumers');
 
 // Define the vertices that describe airfoil shape SD7037
 const SD7037_x = [0.25, 0.24918, 0.2467675, 0.242865, 0.2376025, 0.231125, 0.2235625, 0.2150375, 0.2056525, 0.1955025, 0.1846625, 0.173235, 0.1613475, 0.1491375, 0.1367325, 0.124265, 0.1118625, 0.099655, 0.0877525, 0.07627, 0.0653125, 0.0549725, 0.0453425, 0.0365025, 0.028525, 0.021465, 0.015365, 0.010255, 0.006155, 0.00308, 0.001045, 0.0000525, 0.0003175, 0.002015, 0.005095, 0.0095, 0.015185, 0.02211, 0.03021, 0.0394125, 0.049625, 0.06074, 0.0726375, 0.0851775, 0.09822, 0.1116075, 0.125185, 0.1387975, 0.152285, 0.1654925, 0.1782625, 0.190445, 0.20188, 0.21241, 0.22189, 0.2301775, 0.2371475, 0.2426925, 0.246725, 0.2491775, 0.25];
@@ -58,11 +62,14 @@ console.log(`The rear area is: ${rearArea}`);
 const minArea = Math.min(frontArea, enclosedArea, rearArea);
 console.log(`The smallest area is: ${minArea}`);
 
-// var totalAreaBySummation = frontArea+enclosedArea+rearArea;
-// console.log(`The total area by summation is: ${totalAreaBySummation}`);
+fs.writeFileSync('output.json', JSON.stringify([frontSparLocations, rearSparLocations, minAreas]), 'utf8');
+// console.log(minAreas);
 
-// if (airfoilArea.toFixed(10) === totalAreaBySummation.toFixed(10)) {
-//     console.log("IT FINALLY FUCKING WORKS");
-// } else {
-//     console.log("BROKEN");
-// }
+var totalAreaBySummation = frontArea+enclosedArea+rearArea;
+console.log(`The total area by summation is: ${totalAreaBySummation}`);
+
+if (airfoilArea.toFixed(10) === totalAreaBySummation.toFixed(10)) {
+    console.log("IT WORKS");
+} else {
+    console.log("BROKEN");
+}

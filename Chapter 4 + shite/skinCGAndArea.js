@@ -108,4 +108,15 @@ function calculateCGCoordinates(xValues, yValues, skinThickness) {
     return numeratorXValues, numeratorYValues;
 }
 
-calculateCGCoordinates(SD7037_x, SD7037_y, skinThickness);
+let upperValues = [];
+let lowerValues = [];
+for (let i = 0; i < skinPerimeter.length; i++) {
+    if (i < 31) {
+        upperValues.push(skinPerimeter[i]);
+    } else {
+        lowerValues.push(skinPerimeter[i]);
+    }
+}
+
+console.log(`UPPER PERIMETER: ${upperValues.reduce((accumulator, currentValue) => accumulator + currentValue, 0)}`);
+console.log(`LOWER PERIMETER: ${lowerValues.reduce((accumulator, currentValue) => accumulator + currentValue, 0)}`);

@@ -10,7 +10,7 @@ const SD7037_y = [0.01, 0.010105, 0.01045, 0.01109, 0.0120275, 0.0132375, 0.0146
 const chordLength = 0.25; // m
 
 const frontSparX = 0.304*chordLength; // m
-const rearSparX = 0.55*chordLength; // m
+const rearSparX = 0.608*chordLength; // m
 
 // Define the vertices of the front, enclosed and rear area
 const outputs = divideAreas(SD7037_x, SD7037_y, frontSparX, rearSparX);

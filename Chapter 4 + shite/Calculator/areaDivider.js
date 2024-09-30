@@ -5,7 +5,7 @@ const SD7037_y = [0.01, 0.010105, 0.01045, 0.01109, 0.0120275, 0.0132375, 0.0146
 const chordLength = 0.25; // m
 
 const frontSparX = 0.304*chordLength; // m
-const rearSparX = 0.6*chordLength; // m
+const rearSparX = 0.608*chordLength; // m
 
 function divideAreas(xCoords, yCoords, frontSparX, rearSparX) {
     // Define arrays to save the coordinates that describe the areas
@@ -51,6 +51,8 @@ function divideAreas(xCoords, yCoords, frontSparX, rearSparX) {
 
         let rearSparYBottom = intersectSlopeBottom*rearSparX+intersectDisplacementBottom;
 
+        console.log(`The height of the rear spar web is ${rearSparYTop-rearSparYBottom}`);
+
         rearAreaYCoords.splice(minRearXValueIndex+1, 0, rearSparYTop, rearSparYBottom);
 
         enclosedAreaYCoords.splice(0, 0, rearSparYTop);
@@ -72,6 +74,8 @@ function divideAreas(xCoords, yCoords, frontSparX, rearSparX) {
         let intersectDisplacementBottom = rearAreaYCoords[minRearXValueIndex]-intersectSlopeBottom*rearAreaXCoords[minRearXValueIndex+2];
 
         let rearSparYBottom = intersectSlopeBottom*rearSparX+intersectDisplacementBottom;
+
+        console.log(`The height of the rear spar web is ${rearSparYTop-rearSparYBottom}`);
 
         rearAreaYCoords.splice(minRearXValueIndex, 0, rearSparYTop, rearSparYBottom);
 

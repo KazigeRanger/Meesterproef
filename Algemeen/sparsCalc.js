@@ -107,7 +107,7 @@ function calculateSparYCoordinates(frontSparX, rearSparX) {
         console.log(`-- The top of the bottom spar is located at y = ${rearTopY}`);
         console.log(`-- The bottom of the bottom spar is located at y = ${rearBottomY}`);
     
-        return [frontSparHeight, rearSparHeight];
+        return [frontSparHeight, frontTopY, frontBottomY, rearSparHeight, rearTopY, rearBottomY];
     }
 }
 

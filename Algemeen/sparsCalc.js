@@ -54,7 +54,7 @@ function calculateSparYCoordinates(frontSparX, rearSparX) {
         console.log(`-- The top of the spar is located at y = ${frontTopY}`);
         console.log(`-- The bottom of the spar is located at y = ${frontBottomY}`);
     
-        return sparHeight;
+        return [sparHeight, frontTopY, frontBottomY];
     } else {
         for (let i = 0; i < SD7037_x.length; i++) {
             if (SD7037_x[i] < rearSparX && SD7037_x[i-1] > rearSparX) {

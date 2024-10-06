@@ -12,9 +12,31 @@ function calculateAirfoilPerimeter(frontSparX, rearSparX) {
     const rearTopY = sparYCoordinates[4];
     const rearBottomY = sparYCoordinates[5];
 
-    // Calculate the distances between each airfoil point
     let totalPerimeter = 0;
+
+    let rearTopPerimeter = 0;
+    let enclosedTopPerimeter = 0;
+    let frontTopPerimeter = 0;
+    let frontBottomPerimeter = 0;
+    let enclosedBottomPerimeter = 0;
+    let rearBottomPerimeter = 0;
+
+    let upperSkin;
+    let lowerSkin;
+
+    // Calculate the distances between each airfoil point
     for (let i = 0; i < SD7037_x.length; i++) {
+        if (i < 31) {
+            upperSkin = true;
+            lowerSkin = false;
+        } else if (i > 31) {
+            upperSkin = false;
+            lowerSkin = true;
+        } else if (i === 31 || i === 0) {
+            upperSkin = true;
+            lowerSkin = true;
+        }
+
         if (i+1 !== SD7037_x.length) {
             let deltaX = SD7037_x[i]-SD7037_x[i+1];
             let deltaY = SD7037_y[i]-SD7037_y[i+1];
@@ -22,6 +44,38 @@ function calculateAirfoilPerimeter(frontSparX, rearSparX) {
             let distance = Math.sqrt(Math.pow(deltaX, 2)+Math.pow(deltaY, 2));
 
             totalPerimeter += distance;
+
+            // Rear top perimeter conditional
+            if (SD7037_x[i] > rearSparX && SD7037_x[i+1] > rearSparX && upperSkin === true) {
+                rearTopPerimeter += distance;
+                // Rear top perimeter edge case conditional
+            } else if (SD7037_x[i] > rearSparX && SD7037_x[i+1] < rearSparX && upperSkin === true) {
+                deltaX = SD7037_x[i]-rearSparX;
+                deltaY = SD7037_y[i]-rearTopY;
+
+                distance = Math.sqrt(Math.pow(deltaX, 2)+Math.pow(deltaY, 2));
+
+                rearTopPerimeter += distance;
+                // Enclosed top perimeter conditional
+            } else if (SD7037_x[i] < rearSparX && SD7037_x[i+1] < rearSparX && SD7037_x[i] > frontSparX && SD7037_x[i+1] > frontSparX && upperSkin === true) {
+                enclosedTopPerimeter += distance;
+                // Enclosed top perimeter rear spar edge case conditional
+            } else if (SD7037_x[i] < rearSparX && SD7037_x[i-1] > rearSparX && upperSkin === true) {
+                deltaX = SD7037_x[i]-rearSparX;
+                deltaY = SD7037_y[i]-rearTopY;
+
+                distance = Math.sqrt(Math.pow(deltaX, 2)+Math.pow(deltaY, 2));
+
+                enclosedTopPerimeter += distance;
+                // Enclosed top perimeter front spar edge case conditional
+            } else if (SD7037_x[i] > frontSparX && SD7037_x[i+1] < frontSparX && upperSkin === true) {
+                deltaX = SD7037_x[i]-frontSparX;
+                deltaY = SD7037_y[i]-frontTopY;
+
+                distance = Math.sqrt(Math.pow(deltaX, 2)+Math.pow(deltaY, 2));
+
+                enclosedTopPerimeter += distance;
+            }
         } else if (i+1 === SD7037_x.length) {
             let deltaX = SD7037_x[i]-SD7037_x[0];
             let deltaY = SD7037_y[i]-SD7037_y[0];
@@ -32,7 +86,11 @@ function calculateAirfoilPerimeter(frontSparX, rearSparX) {
         }
     }
 
-    console.log(totalPerimeter);
+    console.log("");
+    console.log(`The total perimeter of the airfoil is ${totalPerimeter} meters`);
+    console.log(`-- The perimeter of the rear top section of the airfoil is ${rearTopPerimeter} meters`);
+    console.log(`-- The perimeter of the enclosed top section of the airfoil is ${enclosedTopPerimeter} meters`);
+    console.log(`\n${SD7037_x.indexOf(Math.min(...SD7037_x))}`);
 }
 
 module.exports = {calculateAirfoilPerimeter};
